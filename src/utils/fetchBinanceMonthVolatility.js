@@ -15,7 +15,7 @@ function getVolatilityLevel(std) {
 }
 
 
-// Fetch 1m klines for a given day and calculate volatility, volume, and close price
+// Fetch 1m klines for a given day and calculate volatility, volume, open, high, low, close price, and liquidity
 async function fetchDayVolatility(symbol, date) {
   const start = dayjs(date).startOf('day').valueOf();
   const end = dayjs(date).endOf('day').valueOf();
@@ -28,9 +28,15 @@ async function fetchDayVolatility(symbol, date) {
   const std = calcStdDev(mids);
   // Volume: sum of all 1m volumes
   const volume = klines.reduce((sum, k) => sum + parseFloat(k[5]), 0);
-  // Close price: last kline close
+  // Open, High, Low, Close
+  const open = klines.length > 0 ? parseFloat(klines[0][1]) : null;
   const close = klines.length > 0 ? parseFloat(klines[klines.length - 1][4]) : null;
-  return { std, level: getVolatilityLevel(std), volume, close };
+  const high = klines.length > 0 ? Math.max(...klines.map(k => parseFloat(k[2]))) : null;
+  const low = klines.length > 0 ? Math.min(...klines.map(k => parseFloat(k[3]))) : null;
+  // Liquidity: use quote asset volume (k[7]) as a proxy for liquidity (or use taker buy base/quote volume)
+  // We'll use quote asset volume (k[7])
+  const liquidity = klines.reduce((sum, k) => sum + parseFloat(k[7]), 0);
+  return { std, level: getVolatilityLevel(std), volume, open, high, low, close, liquidity };
 }
 
 // Fetch and dispatch volatility for all days in the month
@@ -39,9 +45,9 @@ export async function fetchMonthVolatility(symbol, month, dispatch) {
   const endOfMonth = dayjs(month).endOf('month');
   let d = startOfMonth;
   while (d.isBefore(endOfMonth) || d.isSame(endOfMonth, 'day')) {
-    const { std, level, volume, close } = (await fetchDayVolatility(symbol, d.format('YYYY-MM-DD'))) || {};
+    const { std, level, volume, open, high, low, close, liquidity } = (await fetchDayVolatility(symbol, d.format('YYYY-MM-DD'))) || {};
     if (std !== undefined && level) {
-      dispatch(setVolatility({ date: d.format('YYYY-MM-DD'), level, value: std, volume, close }));
+      dispatch(setVolatility({ date: d.format('YYYY-MM-DD'), level, value: std, volume, open, high, low, close, liquidity }));
     }
     d = d.add(1, 'day');
   }

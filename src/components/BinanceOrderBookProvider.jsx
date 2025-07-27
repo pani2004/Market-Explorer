@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { connectBinanceDepthStream } from '../utils/binanceSocket';
-import { setVolatility } from '../store/orderBookSlice';
+import { setVolatility, resetOrderBook } from '../store/orderBookSlice';
 import dayjs from 'dayjs';
 import { fetchMonthVolatility } from '../utils/fetchBinanceMonthVolatility';
 
@@ -22,6 +22,13 @@ function getVolatilityLevel(std) {
 export default function BinanceOrderBookProvider({ symbol = 'BTCUSDT', currentMonth, children }) {
   const dispatch = useDispatch();
 
+  // Reset store data when symbol changes
+  useEffect(() => {
+    dispatch(resetOrderBook());
+    // Clear localStorage for the previous symbol - use symbol-specific keys
+    localStorage.removeItem(`midPrices-${symbol}`);
+  }, [symbol, dispatch]);
+
   useEffect(() => {
     fetchMonthVolatility(symbol, currentMonth, dispatch);
   }, [dispatch, symbol, currentMonth]);
@@ -33,32 +40,32 @@ export default function BinanceOrderBookProvider({ symbol = 'BTCUSDT', currentMo
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const midPricesRaw = JSON.parse(localStorage.getItem('midPrices') || '[]');
+      const midPricesRaw = JSON.parse(localStorage.getItem(`midPrices-${symbol}`) || '[]');
       const now = Date.now();
       const oneDayAgo = now - 24 * 60 * 60 * 1000;
       const filtered = midPricesRaw.filter(mp => mp.timestamp >= oneDayAgo);
-      localStorage.setItem('midPrices', JSON.stringify(filtered));
+      localStorage.setItem(`midPrices-${symbol}`, JSON.stringify(filtered));
       const prices = filtered.map(mp => mp.price);
       const std = calcStdDev(prices);
       const date = new Date().toISOString().slice(0, 10);
       const level = getVolatilityLevel(std);
       dispatch(setVolatility({ date, level, value: std }));
-      localStorage.setItem(`volatility-${date}`, JSON.stringify({ level, value: std }));
+      localStorage.setItem(`volatility-${symbol}-${date}`, JSON.stringify({ level, value: std }));
     }, 60 * 1000); 
     return () => clearInterval(interval);
-  }, [dispatch]);
+  }, [dispatch, symbol]);
 
   useEffect(() => {
     const unsub = (action) => {
       if (action.type === 'orderBook/addMidPrice') {
-        const midPricesRaw = JSON.parse(localStorage.getItem('midPrices') || '[]');
+        const midPricesRaw = JSON.parse(localStorage.getItem(`midPrices-${symbol}`) || '[]');
         midPricesRaw.push(action.payload);
-        localStorage.setItem('midPrices', JSON.stringify(midPricesRaw));
+        localStorage.setItem(`midPrices-${symbol}`, JSON.stringify(midPricesRaw));
       }
     };
     window.addEventListener('redux-action', unsub);
     return () => window.removeEventListener('redux-action', unsub);
-  }, []);
+  }, [symbol]);
 
   return children;
 }

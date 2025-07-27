@@ -1,4 +1,3 @@
-import React from 'react';
 import CalendarCell from './CalendarCell';
 import { getDaysInMonth, getStartOfWeek, getEndOfWeek, isSameDay } from '../../utils/dateHelpers';
 
@@ -38,7 +37,7 @@ const CalendarBody = ({ currentDate, viewMode, selectedDate, setSelectedDate, fo
   };
 
   return (
-    <div role="grid" className="grid grid-cols-7 gap-1 bg-[#1a2746] rounded p-2 min-h-[300px]">
+    <div role="grid" className="calendar-grid-export grid grid-cols-7 gap-1 bg-gray-900 rounded p-2 min-h-[300px]">
       {days.map((date, idx) => (
         <CalendarCell
           key={date.format('YYYY-MM-DD')}

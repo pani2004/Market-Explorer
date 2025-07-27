@@ -19,22 +19,33 @@ function CalendarWithRouting(props) {
   );
 }
 
-function DashboardWithParams() {
+function DashboardWithParams({ selectedInstrument }) {
   const { date } = useParams();
-  return <DashboardPanel date={dayjs(date)} onClose={() => window.history.back()} />;
+  return <DashboardPanel 
+    date={dayjs(date)} 
+    onClose={() => window.history.back()} 
+    instrument={selectedInstrument}
+  />;
 }
 
 function App() {
   const [currentMonth, setCurrentMonth] = useState(dayjs());
+  const [selectedInstrument, setSelectedInstrument] = useState('BTCUSDT');
+  
   return (
     <Provider store={store}>
-      <BinanceOrderBookProvider symbol="BTCUSDT" currentMonth={currentMonth}>
+      <BinanceOrderBookProvider symbol={selectedInstrument} currentMonth={currentMonth}>
         <Router>
           <div className="min-h-screen bg-[#1a2746] flex flex-col items-center justify-center">
             <h1 className="text-3xl font-bold mb-6 text-white drop-shadow">Market Explorer Calendar</h1>
             <Routes>
-              <Route path="/" element={<CalendarWithRouting currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} />} />
-              <Route path="/dashboard/:date" element={<DashboardWithParams />} />
+              <Route path="/" element={<CalendarWithRouting 
+                currentMonth={currentMonth} 
+                setCurrentMonth={setCurrentMonth}
+                selectedInstrument={selectedInstrument}
+                setSelectedInstrument={setSelectedInstrument}
+              />} />
+              <Route path="/dashboard/:date" element={<DashboardWithParams selectedInstrument={selectedInstrument} />} />
             </Routes>
           </div>
         </Router>
