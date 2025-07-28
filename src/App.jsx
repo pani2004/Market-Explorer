@@ -1,8 +1,7 @@
-
 import { Provider } from 'react-redux';
 import store from './store/store';
 import './App.css';
-import Calendar from './components/calendar/Calendar';
+import Calendar from './components/Calendar/Calendar';
 import DashboardPanel from './components/DashboardPanel';
 import BinanceOrderBookProvider from './components/BinanceOrderBookProvider';
 import dayjs from 'dayjs';

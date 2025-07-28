@@ -5,6 +5,8 @@ import { Download, FileText, Image, Database, Filter, ChevronDown } from 'lucide
 import CalendarHeader from './CalendarHeader';
 import ViewToggleButtons from './ViewToggleButtons';
 import CalendarBody from './CalendarBody';
+import AlertSystem from '../AlertSystem';
+import HistoricalPatterns from '../HistoricalPatterns';
 
 const Calendar = ({ currentMonth, setCurrentMonth, onCellClick, selectedInstrument = 'BTCUSDT', setSelectedInstrument }) => {
   const [currentDate, setCurrentDate] = useState(currentMonth);
@@ -415,6 +417,16 @@ const Calendar = ({ currentMonth, setCurrentMonth, onCellClick, selectedInstrume
             />
             
             <div className="flex items-center gap-3">
+              {/* Alert System */}
+              <div className="relative z-50">
+                <AlertSystem instrument={selectedInstrument} />
+              </div>
+
+              {/* Historical Patterns */}
+              <div className="relative z-50">
+                <HistoricalPatterns instrument={selectedInstrument} />
+              </div>
+
               {/* Instrument Filter */}
               <div className="relative z-50">
                 <button
