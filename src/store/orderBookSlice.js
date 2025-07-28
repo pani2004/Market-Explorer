@@ -7,7 +7,11 @@ const initialState = {
   midPrices: [], 
   volatility: {},
   volume: {}, 
-  close: {}, 
+  close: {},
+  open: {},
+  high: {},
+  low: {},
+  liquidity: {},
 };
 
 const orderBookSlice = createSlice({
@@ -32,12 +36,30 @@ const orderBookSlice = createSlice({
       if (action.payload.close !== undefined) {
         state.close[action.payload.date] = action.payload.close;
       }
+      if (action.payload.open !== undefined) {
+        state.open[action.payload.date] = action.payload.open;
+      }
+      if (action.payload.high !== undefined) {
+        state.high[action.payload.date] = action.payload.high;
+      }
+      if (action.payload.low !== undefined) {
+        state.low[action.payload.date] = action.payload.low;
+      }
+      if (action.payload.liquidity !== undefined) {
+        state.liquidity[action.payload.date] = action.payload.liquidity;
+      }
     },
     resetOrderBook: (state) => {
       state.bids = [];
       state.asks = [];
       state.midPrices = [];
       state.volatility = {};
+      state.volume = {};
+      state.close = {};
+      state.open = {};
+      state.high = {};
+      state.low = {};
+      state.liquidity = {};
     },
   },
 });
