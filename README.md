@@ -163,25 +163,6 @@ Market-Explorer/
 | **Layer2** | MATIC/USDT |
 | **Meme** | DOGE/USDT |
 
-## 🔧 Configuration
-
-### **Environment Variables**
-Create a `.env` file in the root directory:
-
-```env
-VITE_BINANCE_API_URL=https://api.binance.com/api/v3
-VITE_BINANCE_WS_URL=wss://stream.binance.com:9443/ws
-```
-
-### **Customizing Trading Pairs**
-Edit the `binanceInstruments` array in `Calendar.jsx`:
-
-```javascript
-const binanceInstruments = [
-  { symbol: 'BTCUSDT', name: 'Bitcoin', category: 'Major' },
-  // Add more instruments here
-];
-```
 
 ## 📱 Responsive Design
 
